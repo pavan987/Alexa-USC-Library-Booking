@@ -1,42 +1,6 @@
-from flask import Flask
-from flask import request
-from flask import jsonify
 import json
-import datetime
-import os
 from bs4 import BeautifulSoup
 
-
-app = Flask(__name__)
-
-@app.route('/', methods=['GET'])
-def index1():
-    print "<html><body><h1>Dude please use post</h1></body></html>"
-
-
-@app.route('/', methods=['POST'])
-def index():
-    print "Got a request"
-    data = request.json['html']
-    time = request.json['time']
-    print "html"
-    return getResult(data, time)
-
-
-@app.route('/test',methods=['POST'])
-def intent():
-    data = request.json['html']
-    start_time = request.json['start_time']
-    end_time = request.json['end_time']
-    print "Got a request", datetime.datetime.now().time()
-    print "start:", request.json['start_time'], "end: ", request.json["end_time"]
-    if end_time is None or end_time == "":
-        return getResult(data, start_time)
-    else:
-        return getRangeResult(data, start_time, end_time)
-
-
-    
 def parseHTML(html_content):
     data = html_content
     soup = BeautifulSoup(data, "html.parser")
@@ -108,6 +72,7 @@ def parseHTML(html_content):
 def getResult(data, time):
     j = parseHTML(data)
     time = int(time.split(':')[0])
+    print time
     full_d = json.loads(j)
     flag = False
     json_obj = {}
@@ -120,33 +85,17 @@ def getResult(data, time):
     if flag:
         # record found
         json_obj['status'] = True
-        json_obj['slot1'] = {'sid' : result['sid'], 'room' : result['room'], 'start': result['start'], 'end': result['end']}
-        json_obj['slot2'] = {}
-        print json_obj
-        return jsonify(json_obj)
+        json_obj['response'] = {'sid' : result['sid'], 'room' : result['room'], 'floor' : result['floor'], 'start': result['start'], 'end': result['end']}
+        return json.dumps(json_obj)
     else:
         json_obj['status'] = False
-        json_obj['slot1'] = {}
-        json_obj['slot2'] = {}
-        print json_obj
-        return jsonify(json_obj)
-        # return json.dumps(json_obj)
-
-def getTime(t):
-    if t is None:
-        return ""
-    if t < 12:
-        return str(t)+":00am"
-    elif t == 12:
-        return "12:00pm"
-    else:
-        return str(t-12)+":00pm"
+        json_obj['response'] = {}
+        return json.dumps(json_obj)
 
 def getRangeResult(data, start, end):
     j = parseHTML(data)
     full_d = json.loads(j)
     flag = False
-    json_obj = {}
     start = int(start.split(':')[0])
     end = int(end.split(':')[0])
     room_timings = dict()
@@ -160,54 +109,42 @@ def getRangeResult(data, start, end):
     if len(room_timings) == 1:
         flag = False
         for i in room_timings:
-            if len(room_timings[i]) == 0:
-                continue
-            json_obj["status"] = True
-            json_obj["slot1"] = {'intstart': i, "intend": (i+1), 'room':room_timings[i][0], 'start': getTime(i), 'end': getTime(i+1)}
-            json_obj["slot2"] = {}
+            print "From ",i," to ",i+1," in ",room_timings[i][0]
             flag = True
             break
         if flag:
-            print json_obj
-            return jsonify(json_obj)
+            return
         else:
-            json_obj["status"] = False
-            json_obj["slot1"] = {}
-            json_obj["slot2"] = {}
-            print json_obj
-            return jsonify(json_obj)            
+            print "No rooms"
+            return
     for i in range(start, end-1):
         fin_result = list(set(room_timings[i]) & set(room_timings[i+1]))
         if len(fin_result) != 0:
-            json_obj["status"] = True
-            json_obj["slot1"] = {'intstart': i, "intend": (i+1), 'room':fin_result[0], 'start': getTime(i), 'end': getTime(i+1)}
-            json_obj["slot2"] = {'intstart': (i+1), "intend": (i+2), 'room':fin_result[0], 'start': getTime(i+1), 'end': getTime(i+2)}
-            print json_obj
-            return jsonify(json_obj)
+            print "from ",i," to ",i+2," in room ", fin_result[0]
+            return
         else:
             # no consecutive time slots in a room.
             r1 = None
             r2 = None
             for i in room_timings:
                 if r1 == None and len(room_timings[i]) != 0:
-                    r1 = (i, i+1, room_timings[i][0])
+                    r1 = "from ",i," to ",i+1," in room ", room_timings[i][0]
                 elif r2 == None and len(room_timings[i]) != 0:
-                    r2 = (i, i+1, room_timings[i][0])
-                    
+                    r2 = "from ",i," to ",i+1," in room ", room_timings[i][0]
                 if r1 != None and r2 != None:
-                    json_obj["status"] = True
-                    json_obj["slot1"] = {'intstart': r1[0], "intend": r1[1], 'room':  r1[2], 'start': getTime(r1[0]), 'end': getTime(r1[1])}
-                    json_obj["slot2"] = {'intstart': r2[0], "intend": r2[1], 'room':  r2[2], 'start': getTime(r2[0]), 'end': getTime(r2[1])}
-                    print json_obj
-                    return jsonify(json_obj)
-    json_obj["status"] = False
-    json_obj["slot1"] = {}
-    json_obj["slot2"] = {}
-    print json_obj
-    return jsonify(json_obj)    
+                    print r1, " ", r2
+                    return
+    print "No room for you"
+    return    
     
     
 
-
-if __name__ == '__main__':
-    app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 8080)))
+f = open('input.txt','r')
+lines = f.readlines()
+data = ""
+for line in lines:
+    data = data + line
+start = raw_input("enter the start time in 24hrs:\n")
+end = raw_input("Enter the end time:\n")
+getRangeResult(data, start, end)
+# print getResult(data,time)
