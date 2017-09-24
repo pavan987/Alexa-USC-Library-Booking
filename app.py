@@ -1,5 +1,23 @@
+from flask import Flask
+from flask import request
+from flask import jsonify
 import json
+import os
 from bs4 import BeautifulSoup
+
+
+app = Flask(__name__)
+
+
+@app.route('/', methods=['POST'])
+def index():
+    print "Got a request"
+    print request.get_data()
+    print "end"
+    data = request.json['html']
+    time = request.json['time']
+    print "html"
+    return getResult(data, time)
 
 def parseHTML(html_content):
     data = html_content
@@ -36,8 +54,10 @@ def parseHTML(html_content):
     json_obj['results'] = list()
     for r in result:
         re = r.split(';')
-        floor = re[0].split('-')[0]
-        room = re[0].split('-')[1]
+        print re
+        
+        # floor = re[0].split('-')[0]
+        room = re[0]
         time = re[1][:re[1].index(',')]
         time = ''.join(time.split())
         start = time.split('-')[0]
@@ -63,7 +83,7 @@ def parseHTML(html_content):
             intend = 12
         elif intend == 12 and offset == 0:
             intend = 0
-        json_obj['results'].append({'room': room, 'floor': floor, 'intstart': intstart, 'intend': intend, 'start': start, 'end': end})
+        json_obj['results'].append({'room': room, 'intstart': intstart, 'intend': intend, 'start': start, 'end': end})
    
     return json.dumps(json_obj)
 
@@ -84,18 +104,15 @@ def getResult(data, time):
     if flag:
         # record found
         json_obj['status'] = True
-        json_obj['response'] = {'room' : result['room'], 'floor' : result['floor'], 'start': result['start'], 'end': result['end']}
+        json_obj['response'] = {'room' : result['room'], 'start': result['start'], 'end': result['end']}
+        return jsonify(json_obj)
         return json.dumps(json_obj)
     else:
         json_obj['status'] = False
         json_obj['response'] = {}
-        return json.dumps(json_obj)
+        return jsonify(json_obj)
+        # return json.dumps(json_obj)
 
 
-f = open('input.txt','r')
-lines = f.readlines()
-data = ""
-for line in lines:
-    data = data + line
-time = raw_input("enter the time in 24hrs:\n")
-print getResult(data,time)
+if __name__ == '__main__':
+    app.run(host=os.getenv('IP', '0.0.0.0'),port=int(os.getenv('PORT', 8080)))
