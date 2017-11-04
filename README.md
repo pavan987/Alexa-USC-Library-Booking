@@ -2,6 +2,9 @@
 
 Almost, everyone in USC books a library room either for discussion or for a meeting. The problem with this is that every one has to go through the website and go through the time consuming process of finding one room and booking the room. It is very tiresome to go through all the steps to find just a room.
 
+http://libcal.usc.edu/
+
+
 Just say Alexa, 
     Ask USC library to find a room today at 2pm!, It tells you of the room is available or not
     Ask USC libarty to find room tomorrow between 2pm and 5pm, It tells you the available room in the given period.
