@@ -13,6 +13,9 @@ Just say Alexa,
 
 It is an interactive system which prompts you for specific details if you miss any. 
 
+![alt text](https://m.media-amazon.com/images/G/01/DeveloperBlogs/AmazonDeveloperBlogs/legacy/Screen_Shot_2016-03-03_at_7.01.22_AM._CB520200558_.png)
+
+
 How we Built -
 It interacts with USC library Booking System. But, USC library booking do not have API. So, we tweeked how the systems works, adjusted the HTTP headers and Send normal HTTP request which gives a Web Page. The webpage will be scraped using beautifulsoup to get the specific details and set to Alexa.
 
