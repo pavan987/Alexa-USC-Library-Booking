@@ -1,5 +1,7 @@
 # Alexa-USC-Library-Booking
 
+![alt text](https://scontent-lax3-1.xx.fbcdn.net/v/t31.0-8/21950015_1534377643289770_2733092695998851783_o.jpg?oh=295f0a5c73d384c9d8c4c51a51ac6eb6&oe=5A6808F8)
+
 Almost, everyone in USC books a library room either for discussion or for a meeting. The problem with this is that every one has to go through the website and go through the time consuming process of finding one room and booking the room. It is very tiresome to go through all the steps to find just a room.
 
 http://libcal.usc.edu/
@@ -24,4 +26,4 @@ It is built in 24 hours at Trojan Hackathon and Won the Second Prize
 https://devpost.com/software/usc-smart-room-booking
 
 
-![alt text](https://scontent-lax3-1.xx.fbcdn.net/v/t31.0-8/21950015_1534377643289770_2733092695998851783_o.jpg?oh=295f0a5c73d384c9d8c4c51a51ac6eb6&oe=5A6808F8)
+
